@@ -1,11 +1,9 @@
 package br.com.devpaulosouza.transformations.strategies;
 
 import br.com.devpaulosouza.draw.Coordinates;
-import br.com.devpaulosouza.draw.algorithm.DrawLine;
+import br.com.devpaulosouza.plotter.Plotter;
 import br.com.devpaulosouza.transformations.Crop;
 import br.com.devpaulosouza.utils.MathUtils;
-
-import java.util.Objects;
 
 public class CropCohenSutherland implements Crop {
 
@@ -14,19 +12,24 @@ public class CropCohenSutherland implements Crop {
 	private long yMin = 0;
 	private long yMax = 0;
 
-	private final DrawLine drawLine;
+	private final Plotter plotter;
 
-	public CropCohenSutherland(DrawLine drawLine) {
-		this.drawLine = drawLine;
+	public CropCohenSutherland(Plotter plotter) {
+		this.plotter = plotter;
 	}
 
 	@Override
-	public void crop(long x0, long y0, long x1, long y1) {
+	public void crop(Coordinates p1, Coordinates p2, Coordinates pIn, Coordinates pFin) {
 		boolean accept = false, done = false;
 		byte c1, c2, cOut;
 		long xIn = 0, yIn = 0;
 
-		setLimits(x0, y0, x1, y1);
+		setLimits(p1.getX(), p1.getY(), p2.getX(), p2.getY());
+
+		long x0 = pIn.getX();
+		long y0 = pIn.getY();
+		long x1 = pFin.getX();
+		long y1 = pFin.getY();
 
 		while (!done) {
 			c1 = calculateRegionCode(x0, y0);
@@ -69,9 +72,10 @@ public class CropCohenSutherland implements Crop {
 		}
 
 		if (accept) {
-			drawLine.draw(
+			plotter.setPixel(
 					MathUtils.round(x0),
-					MathUtils.round(y0),
+					MathUtils.round(y0));
+			plotter.setPixel(
 					MathUtils.round(x1),
 					MathUtils.round(y1)
 			);
@@ -79,13 +83,6 @@ public class CropCohenSutherland implements Crop {
 
 	}
 
-	@Override
-	public void crop(Coordinates p0, Coordinates p1) {
-		Objects.requireNonNull(p0);
-		Objects.requireNonNull(p1);
-
-		this.crop(p0.getX(), p0.getY(), p1.getX(), p1.getY());
-	}
 
 	private void setLimits(long x0, long y0, long x1, long y1) {
 		xMin = Math.min(x0, x1);
