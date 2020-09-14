@@ -24,7 +24,7 @@ public class CropCohenSutherland implements Crop {
 	public void crop(long x0, long y0, long x1, long y1) {
 		boolean accept = false, done = false;
 		byte c1, c2, cOut;
-		long xIn, yIn;
+		long xIn = 0, yIn = 0;
 
 		setLimits(x0, y0, x1, y1);
 
@@ -45,15 +45,24 @@ public class CropCohenSutherland implements Crop {
 				}
 				if ((cOut & 1) == 1) {
 					xIn = xMin;
+					yIn = y0 + (y1-y0) * (xMin-x0)/(x1-x0);
 				} else if ((cOut & 2) == 2) {
-					
+					xIn = xMax;
+					yIn = y0 + (y1-y0) * (xMax-x0)/(x1-x0);
 				} else if ((cOut & 4) == 4) {
-
+					yIn = yMin;
+					xIn = x0 + (x1-x0) * (yMin-y0)/(y1-y0);
+				} else if ((cOut & 8) == 8) {
+					yIn = yMax;
+					xIn = x0 + (x1-x0) * (yMax-y0) / (y1-y0);
 				}
+
 				if (c1 == cOut) {
-
+					x0 = xIn;
+					y0 = yIn;
 				} else {
-
+					x1 = xIn;
+					y1 = yIn;
 				}
 			}
 
